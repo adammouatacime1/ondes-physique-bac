@@ -1,0 +1,56 @@
+name: Vérifier et déployer le site
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - run: npx playwright-core install --with-deps chromium
+      - name: Vérification du site construit
+        shell: bash
+        run: |
+          npm run preview -- --port 4173 > /tmp/ondes-preview.log 2>&1 &
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4173/ > /dev/null; then break; fi
+            sleep 1
+          done
+          export CHROMIUM_PATH="$(node --input-type=module -e "import {chromium} from 'playwright-core'; process.stdout.write(chromium.executablePath())")"
+          TEST_URL=http://127.0.0.1:4173/ npm run test:browser
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: verifications-navigateur
+          path: artifacts/
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publier
+        id: deployment
+        uses: actions/deploy-pages@v4
