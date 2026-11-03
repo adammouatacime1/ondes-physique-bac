@@ -21,3 +21,11 @@ Validation du 3 novembre 2026, dans l’environnement cloud ; les fichiers de ra
 - Les fronts de diffraction mécanique sont illustratifs (Huygens simplifié) ; les amplitudes et les interférences ne sont pas résolues. Le prisme est qualitatif. Les couleurs et le contraste de l’écran optique sont illustratifs. Les conditions et conventions sont indiquées dans le site et README.md.
 - Le programme officiel n’a pas été vérifié ; aucune conformité officielle n’est affirmée.
 - La validation locale du build ne prouve ni le succès du workflow GitHub Actions ni le déploiement public. L’accès à l’API GitHub Pages est refusé par le proxy HTTP de cette session. Les domaines nécessaires (`api.github.com`, `adammouatacime1.github.io`) ont été ajoutés au brouillon de configuration, mais leur application exige la sauvegarde/publication des paramètres de l’environnement. Le workflow Pages livré reste soumis aux droits et réglages du dépôt.
+
+## Publication distante observée
+
+Le code a été poussé sur `main`, commit `ce0cdcf5d5c56a6ce022be2c7c36f458ca3870da`. Le workflow a effectivement démarré : https://github.com/adammouatacime1/ondes-physique-bac/actions/runs/41682804353 . Son exécution a duré 52 secondes, avec un artefact `verifications-navigateur` de 6,78 Mo. Elle a échoué à `actions/configure-pages` : le site Pages n’existe pas (`Not Found`) et le jeton Actions n’a pas le droit de le créer (`Resource not accessible by integration`). Le job deploy n’a pas été exécuté. Aucun lien de site publié n’est donc annoncé.
+
+Action propriétaire requise : ouvrir **Settings → Pages → Build and deployment → Source : GitHub Actions**, puis **Actions → Vérifier et déployer le site → Run workflow** sur `main` (ou relancer l’exécution). Cette activation administrative n’est pas réalisable avec le jeton d’intégration disponible. Après activation, vérifier le job deploy et le site réellement servi. Le refus API par le proxy de la session reste distinct du refus de droits reçu par le runner GitHub.
+
+Les scripts reproductibles `install_script` et `start_skill`, ainsi que les deux domaines réseau requis pour les vérifications GitHub, ont été sauvegardés dans le brouillon de l’environnement cloud. La sauvegarde du brouillon n’applique ni ne publie ses changements : ils sont à revoir et publier dans les paramètres de l’environnement.
